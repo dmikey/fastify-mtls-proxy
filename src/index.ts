@@ -197,7 +197,16 @@ export default fp(
         opts.replyOptions && typeof opts.replyOptions.getUpstream === "function"
       )
     ) {
-      throw new Error("upstream must be specified");
+      opts.replyOptions = {
+        ...opts.replyOptions,
+        getUpstream: (req: any, base: string) => {
+          const url: any =
+            req.url.indexOf("http") === 0
+              ? new URL(`${req.url}`)
+              : new URL(`${base}${req.url}`);
+          return `${base}${url.pathname}`;
+        },
+      };
     }
 
     const preHandler = opts.preHandler || opts.beforeHandler;
@@ -259,8 +268,8 @@ export default fp(
 
     function handler(
       this: any,
-      request: { raw: { url: string | string[] } },
-      reply: { from: (arg0: any, arg1: any) => void }
+      request: { raw: { url: string | string[] }; headers: any },
+      reply: { from: (arg0: any, arg1: any) => void; code: (arg0: any) => void }
     ) {
       const queryParamIndex = request.raw.url.indexOf("?");
       let dest: any = request.raw.url.slice(
@@ -268,15 +277,19 @@ export default fp(
         queryParamIndex !== -1 ? queryParamIndex : undefined
       );
       dest = dest.replace(this.prefix, rewritePrefix);
+
+      // if no upstream specified, or this path wasn't already handled then return 404
+      if (!request.headers.upstream) {
+        reply.code(404);
+      }
+
       reply.from(dest || "/", replyOpts);
     }
 
-    if (opts.websocket) {
-      setupWebSocketProxy(fastify, opts, rewritePrefix);
-    }
+    setupWebSocketProxy(fastify, opts, rewritePrefix);
   },
   {
     fastify: "3.x",
-    name: "@ovrclk/fastify-mtls-proxy",
+    name: "@dmikey/fastify-mtls-proxy",
   }
 );

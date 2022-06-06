@@ -51,6 +51,12 @@ export default fp(
 
     fastify.decorateReply("from", function (this: any, source, opts) {
       opts = opts || {};
+
+      source =
+        source.indexOf("http") === 0
+          ? source
+          : `${this.request.headers.upstream}${source}`;
+
       const sourceURL = new Url.URL(source);
       const base = `${sourceURL.protocol}//${sourceURL.host}`;
       const req = this.request.raw;
