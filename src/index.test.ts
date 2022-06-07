@@ -40,7 +40,7 @@ describe("testing proxy", () => {
     );
   });
 
-  test.only("should return TLS certificate was presented", (done) => {
+  test("should return TLS certificate was presented", (done) => {
     app.inject(
       {
         headers: {
