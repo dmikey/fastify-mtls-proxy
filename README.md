@@ -66,3 +66,7 @@ axios
 ### advanced configuration
 
 using the `Options` type, you can define
+
+### thanks
+
+to the original work by all the contributors to the original modules.
