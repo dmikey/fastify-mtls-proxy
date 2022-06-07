@@ -279,7 +279,10 @@ export default fp(
       dest = dest.replace(this.prefix, rewritePrefix);
 
       // if no upstream specified, or this path wasn't already handled then return 404
-      if (!request.headers.upstream) {
+      if (
+        !request.headers.upstream &&
+        request.raw.url.indexOf("upstream") === -1
+      ) {
         reply.code(404);
       }
 

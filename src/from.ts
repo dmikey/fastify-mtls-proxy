@@ -61,6 +61,8 @@ export default fp(
       const base = `${sourceURL.protocol}//${sourceURL.host}`;
       const req = this.request.raw;
       const getUpstream = opts.getUpstream || upstreamNoOp;
+
+      // we can forward the cert and key here, if we have them
       const { request, close, retryOnError } = buildRequest({
         http: opts.http,
         http2: opts.http2,

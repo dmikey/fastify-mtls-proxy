@@ -3,17 +3,39 @@ import plugin, { Options } from "./index";
 
 const app = fastify();
 
-describe("testing encryption", () => {
-  app.register(plugin, { upstream: "http://www.google.com" } as Options);
-  test("string should encrypt and decrypt with password", async () => {
+describe("testing proxy", () => {
+  app.register(plugin, {} as Options);
+  test("should return GET response from upstream", async () => {
     const response = await app.inject({
       headers: {
-        upstream: "http://www.google.com",
+        upstream: "https://www.httpbin.org",
       },
       method: "GET",
-      url: "/",
+      url: "/anything",
     });
+    expect(JSON.parse(response.body).headers["Host"]).toBe("www.httpbin.org");
+  });
 
-    expect(response.body).toBe(JSON.stringify({ hello: "world" }));
+  test("should return POST response from upstream", (done) => {
+    return app.inject(
+      {
+        headers: {
+          upstream: "https://www.httpbin.org",
+        },
+        method: "POST",
+        url: "/anything",
+        payload: {
+          hello: "world",
+        },
+      },
+      (err, response) => {
+        if (response) {
+          expect(JSON.parse(response.body).data).toBe(
+            JSON.stringify({ hello: "world" })
+          );
+        }
+        done(err);
+      }
+    );
   });
 });

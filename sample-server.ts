@@ -3,7 +3,7 @@ import plugin, { Options } from "./src/index";
 
 const app = fastify({ logger: true });
 
-app.register(plugin, {} as Options);
+app.register(plugin, {} as any);
 
 app.register(async (fastify, opts) => {
   fastify.get("/test-page", async (request, reply) => {
@@ -14,20 +14,6 @@ app.register(async (fastify, opts) => {
         </head>
         <body>
         <h1>Hello World</h1>
-          <script>
-          axios
-          .get("http://localhost:3000/ip", {
-            headers: {
-              upstream:'http://httpbin.org',
-            },
-          })
-          .then(function (response) {
-            console.log(response);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-          </script>
         </body>
         </html>`
     );
