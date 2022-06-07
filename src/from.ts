@@ -63,21 +63,24 @@ export default fp(
       const req = this.request.raw;
       const getUpstream = opts.getUpstream || upstreamNoOp;
 
-      const { proxy_key, proxy_cert } = this.request.body || {};
+      const { proxy_key, proxy_cert, ...restBody } = this.request.body || {};
 
+      opts.body = { ...restBody };
+
+      // we can forward the cert and key here, if we have them
       if (proxy_cert && proxy_key) {
         opts.http = {
           ...opts.http,
           agents: {
-            https: new https.Agent({
+            ["https:"]: new https.Agent({
               key: proxy_key,
               cert: proxy_cert,
+              rejectUnauthorized: false,
             }),
           },
         };
       }
 
-      // we can forward the cert and key here, if we have them
       const { request, close, retryOnError } = buildRequest({
         http: opts.http,
         http2: opts.http2,

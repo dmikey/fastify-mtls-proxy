@@ -224,11 +224,6 @@ export default fp(
 
     fastify.register(From, fromOpts);
 
-    if (opts.proxyPayloads !== false) {
-      fastify.addContentTypeParser("application/json", bodyParser);
-      fastify.addContentTypeParser("*", bodyParser);
-    }
-
     function rewriteHeaders(headers: { location: any }) {
       const location = headers.location;
       if (location && !isExternalUrl(location)) {
@@ -268,8 +263,11 @@ export default fp(
 
     function handler(
       this: any,
-      request: { raw: { url: string | string[] }; headers: any },
-      reply: { from: (arg0: any, arg1: any) => void; code: (arg0: any) => void }
+      request: { raw: { url: string | string[] }; headers: any; body: any },
+      reply: {
+        from: (arg0: any, arg1: any) => void;
+        code: (arg0: any) => void;
+      }
     ) {
       const queryParamIndex = request.raw.url.indexOf("?");
       let dest: any = request.raw.url.slice(
