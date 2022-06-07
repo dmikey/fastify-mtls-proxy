@@ -65,10 +65,9 @@ export default fp(
 
       const { proxy_key, proxy_cert, ...restBody } = this.request.body || {};
 
-      opts.body = { ...restBody };
-
-      // we can forward the cert and key here, if we have them
+      // // we can forward the cert and key here, if we have them
       if (proxy_cert && proxy_key) {
+        opts.body = { ...restBody };
         opts.http = {
           ...opts.http,
           agents: {
