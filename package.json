@@ -1,11 +1,12 @@
 {
   "name": "@dmikey/fastify-mtls-proxy",
-  "version": "1.0.0",
-  "main": "index.js",
+  "version": "1.0.2",
+  "main": "src/index.js",
   "license": "MIT",
   "scripts": {
     "test": "jest",
-    "start": "ts-node sample-server.ts"
+    "start": "ts-node sample-server.ts",
+    "prepublishOnly": "tsc"
   },
   "dependencies": {
     "@fastify/reply-from": "^7.0.1",

@@ -2,3 +2,4 @@ node_modules
 *-lock.json
 *.lock
 coverage/
+src/**/*.js
