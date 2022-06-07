@@ -5,6 +5,7 @@ const Stream = require("stream");
 const createError = require("http-errors");
 const buildRequest = require("./request");
 const Url = require("url");
+const https = require("https");
 const {
   filterPseudoHeaders,
   copyHeaders,
@@ -61,6 +62,20 @@ export default fp(
       const base = `${sourceURL.protocol}//${sourceURL.host}`;
       const req = this.request.raw;
       const getUpstream = opts.getUpstream || upstreamNoOp;
+
+      const { proxy_key, proxy_cert } = this.request.body || {};
+
+      if (proxy_cert && proxy_key) {
+        opts.http = {
+          ...opts.http,
+          agents: {
+            https: new https.Agent({
+              key: proxy_key,
+              cert: proxy_cert,
+            }),
+          },
+        };
+      }
 
       // we can forward the cert and key here, if we have them
       const { request, close, retryOnError } = buildRequest({

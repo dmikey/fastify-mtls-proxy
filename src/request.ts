@@ -63,9 +63,10 @@ function buildRequest(opts: any) {
       );
     }
   } else {
-    agents = httpOpts.agents || {
+    agents = {
       "http:": new http.Agent(httpOpts.agentOptions),
       "https:": new https.Agent(httpOpts.agentOptions),
+      ...httpOpts.agents,
     };
   }
 
