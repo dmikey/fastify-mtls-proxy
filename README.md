@@ -30,12 +30,12 @@ app.register(mTLSProxyPlugin, {} as Options);
 
 ### how to use
 
-Send a request to your server as you would to the original upstream. Specify `client_cert_pem` and `client_key_pem` in the post body.
+Send a request to your server as you would to the original upstream. Specify `proxy_cert` and `proxy_key` in the post body.
 
 bash using `curl`
 
 ```bash
-curl --proxy "http://localhost:3000" "http://httpbin.org/ip"
+curl --proxy "http://localhost:3000" "http://www.httpbin.org/ip"
 ```
 
 or to make a secure request over the insecure proxy
@@ -52,7 +52,7 @@ import axios from "axios";
 axios
   .post("http://localhost:3000/ip", {
     headers: {
-      host: "http://httpbin.org/",
+      host: "http://www.httpbin.org/",
     },
   })
   .then(function (response) {
@@ -62,6 +62,38 @@ axios
     console.log(error);
   });
 ```
+
+If you can not modify the headers, and can only modify the host of the platform you are trying to proxy through, using a `query string` parameter is available.
+
+```bash
+curl "http://localhost:3000/ip?upstream=http://httpbin.org/ip"
+curl "http://localhost:3000/ip?upstream=https://www.httpbin.org"
+```
+
+Sending `mTLS` connection information along with the upstream request.
+
+```javascript
+import axios from "axios";
+
+axios
+  .post("http://localhost:3000/", {
+    headers: {
+      host: "https://certauth.cryptomix.com",
+    },
+  })
+  .then(function (response) {
+    console.log(response);
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+```
+
+### how pathing works
+
+When using a requesting a resource, the pathing should be requested from the proxy.
+
+Example a resource that is available at `http://foo.com/my-resource` would be requested as `http://proxy.com/my-resource?upstream=http://foo.com/my-resource`
 
 ### advanced configuration
 
