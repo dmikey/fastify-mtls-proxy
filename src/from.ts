@@ -56,7 +56,9 @@ export default fp(
       source =
         source.indexOf("http") === 0
           ? source
-          : `${this.request.headers.upstream}${source}`;
+          : this.request.headers.upstream
+          ? `${this.request.headers.upstream}${source}`
+          : `${this.request.query.upstream}${source}`;
 
       const sourceURL = new Url.URL(source);
       const base = `${sourceURL.protocol}//${sourceURL.host}`;

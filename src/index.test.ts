@@ -6,6 +6,14 @@ const app = fastify();
 describe("testing proxy", () => {
   app.register(plugin, {} as Options);
 
+  test("should return GET response from upstream using uri", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/anything?upstream=https://www.httpbin.org",
+    });
+    expect(JSON.parse(response.body).headers["Host"]).toBe("www.httpbin.org");
+  });
+
   test("should return GET response from upstream", async () => {
     const response = await app.inject({
       headers: {
