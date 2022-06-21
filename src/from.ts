@@ -58,7 +58,9 @@ export default fp(
           ? source
           : this.request.headers.upstream
           ? `${this.request.headers.upstream}${source}`
-          : `${this.request.query.upstream}${source}`;
+          : this.request.query.upstream
+          ? `${this.request.query.upstream}${source}`
+          : `${opts.upstream}${source}`;
 
       const sourceURL = new Url.URL(source);
       const base = `${sourceURL.protocol}//${sourceURL.host}`;
@@ -180,7 +182,11 @@ export default fp(
         }
       }
 
-      this.request.log.info({ source }, "fetching from remote server");
+      const t0 = performance.now();
+      this.request.log.info(
+        { source, method: req.method, headers },
+        "fetching from remote server"
+      );
 
       const requestHeaders = rewriteRequestHeaders(req, headers);
       const contentLength = requestHeaders["content-length"];
@@ -222,7 +228,13 @@ export default fp(
             }
             return;
           }
-          this.request.log.info("response received");
+          const t1 = performance.now();
+          this.request.log.info(`upstream response recieved`);
+          this.request.log.info({
+            upstreamResponseTime: t1 - t0,
+            upstreamResponseCode: res.statusCode,
+            upstreamHeaders: res.headers,
+          });
           if (sourceHttp2) {
             copyHeaders(
               rewriteHeaders(stripHttp1ConnectionHeaders(res.headers), req),

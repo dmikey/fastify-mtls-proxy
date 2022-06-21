@@ -200,11 +200,20 @@ export default fp(
       opts.replyOptions = {
         ...opts.replyOptions,
         getUpstream: (req: any, base: string) => {
+          let pathParts: Array<string> = (req.url as string)
+            .replace("/upstream/", "")
+            .split("/");
+
+          const [protocol, host, port] = pathParts;
+
           const url: any =
             req.url.indexOf("http") === 0
               ? new URL(`${req.url}`)
               : new URL(`${base}${req.url}`);
-          return `${base}${url.pathname}`;
+          return `${base}${url.pathname.replace(
+            `/upstream/${protocol}/${host}/${port}`,
+            ""
+          )}`;
         },
       };
     }
@@ -282,6 +291,21 @@ export default fp(
         request.raw.url.indexOf("upstream") === -1
       ) {
         reply.code(404);
+      }
+
+      if (request.raw.url.indexOf("upstream") !== -1) {
+        // do a quick check to see if upstream is passed in as a path
+        // this is so we can proxy RPC requests where query params are not passed along
+        let pathParts: Array<string> = (request.raw.url as string)
+          .replace("/upstream/", "")
+          .split("/");
+
+        const [protocol, host, port] = pathParts;
+
+        dest = "/"; // @todo: fix this
+        if (protocol && host && port) {
+          replyOpts.upstream = `${protocol}://${host}:${port}`;
+        }
       }
 
       reply.from(dest || "/", replyOpts);

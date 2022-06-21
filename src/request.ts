@@ -37,7 +37,12 @@ function buildRequest(opts: any) {
   const http2Opts = getHttp2Opts(opts);
   const httpOpts = getHttpOpts(opts);
   const baseUrl = opts.base && new URL(opts.base).origin;
-  const undiciOpts = opts.undici || {};
+
+  // setting the default to something bigger so it doesn't have to be
+  // set by the user
+  const undiciOpts = opts.undici || {
+    timeout: "300000",
+  };
   let http2Client: {
     destroy: () => void;
     destroyed: any;
