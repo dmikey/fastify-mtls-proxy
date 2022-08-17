@@ -57,21 +57,29 @@ export default fp(
         source.indexOf("http") === 0
           ? source
           : this.request.headers.upstream
-          ? `${this.request.headers.upstream}${source}`
-          : this.request.query.upstream
-          ? `${this.request.query.upstream}${source}`
-          : `${opts.upstream}${source}`;
+            ? `${this.request.headers.upstream}${source}`
+            : this.request.query.upstream
+              ? `${this.request.query.upstream}${source}`
+              : `${opts.upstream}${source}`;
 
       const sourceURL = new Url.URL(source);
       const base = `${sourceURL.protocol}//${sourceURL.host}`;
       const req = this.request.raw;
       const getUpstream = opts.getUpstream || upstreamNoOp;
 
-      const { proxy_key, proxy_cert, ...restBody } = this.request.body || {};
+      const { proxy_key, proxy_cert, rewrite_method, ...restBody } = this.request.body || {};
+
+      if (rewrite_method !== 'undefined') {
+        req.method = rewrite_method;
+
+        if (rewrite_method === 'GET') {
+          this.request.body = undefined
+        }
+      }
 
       // // we can forward the cert and key here, if we have them
       if (proxy_cert && proxy_key) {
-        opts.body = { ...restBody };
+        opts.body = req.method !== 'GET' ? { ...restBody } : undefined;
         opts.http = {
           ...opts.http,
           agents: {
